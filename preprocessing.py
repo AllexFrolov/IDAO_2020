@@ -169,12 +169,11 @@ def add_delta_time(df, columns=None):
     Добавляет столбец delta_time в секундах. Возвращает DataFrame в порядке указанном columns
     если columns нет то возвращает все столбцы
     """
-    df.sort_values(by=['sat_id', 'epoch'], inplace=True)
-
-    df['delta_time'] = df.iloc[1:,1] - df.iloc[0:-1,1].values
-    df['delta_seconds'] = df['delta_time'].dt.seconds
-    filters = df.iloc[:, 2] != np.insert(df.iloc[0:-1, 2].values, 0, -1)
-    df.loc[filters, ['delta_time', 'delta_seconds']] = 0
+    dataframe = df.sort_values(by=['sat_id', 'epoch'], inplace=False)
+    dataframe['delta_time'] = dataframe.iloc[1:]['epoch'] - dataframe.iloc[0:-1]['epoch'].values
+    dataframe['delta_seconds'] = dataframe['delta_time'].dt.seconds
+    filters = dataframe['sat_id'] != np.insert(dataframe.iloc[0:-1]['sat_id'].values, 0, -1)
+    dataframe.loc[filters, ['delta_time', 'delta_seconds']] = 0
     if not columns:
-        columns=df.columns
-    return df[columns]
+        columns=dataframe.columns
+    return dataframe[columns]
